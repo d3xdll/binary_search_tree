@@ -76,9 +76,56 @@ class Tree
     value < root.value ? find(value, root.left) : find(value, root.right)
   end
 
-  def level_order(node = root)
-
+  def level_order(node = @root)
+    queue = []
+    arr = []
+    queue.push(node)
+    until queue.empty?
+      current = queue.shift
+      arr = arr.push(block_given? ? yield(current.value) : current.value)
+      queue.push(current.left) if current.left
+      queue.push(current.right) if current.right
+    end
+    arr
   end
+
+  def return_inorder(node = @root, arr = [], &block)
+    return if node.nil?
+
+    return_inorder(node.left, arr, &block)
+    arr.push(block_given? ? block.call(node.value) : node.value)
+    return_inorder(node.right, arr, &block)
+    arr
+  end
+
+  def return_preorder(node = @root, arr = [], &block)
+    return if node.nil?
+
+    return_inorder(node.left, arr, &block)
+    arr.push(block_given? ? block.call(node.value) : node.value)
+    return_inorder(node.right, arr, &block)
+    arr
+  end
+
+  def preorder(node = @root, arr = [], &block)
+    return if node.nil?
+
+    arr.push(block_given? ? block.call(node.value) : node.value)
+    preorder(node.left, arr, &block)
+    preorder(node.right, arr, &block)
+  end
+
+  def postorder(node = @root, arr = [], &block)
+    return if node.nil?
+
+    postorder(node.left, arr, &block)
+    postorder(node.right, arr, &block)
+    arr.push(block_given? ? block.call(node.value) : node.value)
+  end
+
+  def heigth(node)
+    
+  end 
 
   def tree_height(root = @root)
     if root.nil?
@@ -106,5 +153,10 @@ new_tree = Tree.new(input)
 
 new_tree.pretty_print
 
-p new_tree.find(4)
-new_tree.pretty_print
+# p new_tree.find(4)
+# new_tree.pretty_print
+
+# new_tree.level_order {|value| p "Level is #{i} and value is  #{value}"}
+# p new_tree.return_inorder{|val| p "here #{val}"}
+# p new_tree.preorder{|val| p "here #{val}"}
+p new_tree.postorder
