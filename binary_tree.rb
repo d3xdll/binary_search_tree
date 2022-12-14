@@ -122,21 +122,42 @@ class Tree
     postorder(node.right, arr, &block)
     arr.push(block_given? ? block.call(node.value) : node.value)
   end
+  
+  def node_height(node = @root, count = -1)
+    return count if node.nil?
 
-  def heigth(node)
-    
+    count += 1
+    left_height = node_height(node.left, count)
+    right_height = node_height(node.right, count)
+    [left_height, right_height].max
+
+  end
+
+  def depth(value, node = @root, count = 0)
+    return -1 if node.nil?
+
+    return 0 if node.value == value
+
+    if node.value > value
+      count = depth(value, node.left, count)
+      count += 1 if count >= 0
+    else
+      count = depth(value, node.right, count)
+      count += 1 if count >= 0
+    end
+    count
+  end
+
+  def balanced?(node = @root, left = 0, right = 0)
+    p left = node_height(node.left) if node.left
+    p right = node_height(node.right) if node.right
+    (left - right).abs < 2
   end 
 
-  def tree_height(root = @root)
-    if root.nil?
-      0
-    else 
-      left_height = tree_height(root.left)
-      right_height = tree_height(root.right)
-
-      left_height > right_height ? left_height + 1 : right_height + 1
-    end
-  end
+  def balance
+    Tree.new(return_inorder)
+    self.pretty_print
+  end 
 
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
@@ -159,4 +180,9 @@ new_tree.pretty_print
 # new_tree.level_order {|value| p "Level is #{i} and value is  #{value}"}
 # p new_tree.return_inorder{|val| p "here #{val}"}
 # p new_tree.preorder{|val| p "here #{val}"}
-p new_tree.postorder
+new_tree.postorder
+# p new_tree.node_height(new_tree.find(67))
+
+p new_tree.balanced?
+
+new_tree.balance
